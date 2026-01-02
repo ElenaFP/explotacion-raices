@@ -3,14 +3,9 @@
 let rawData = [];
 let currentStats = [];
 let academicYear = '';
+let currentCourse = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // This page uses a select dropdown, so we might need a custom init
-    const courseSelect = document.getElementById('courseSelect');
-    if(courseSelect) {
-        courseSelect.addEventListener('change', updateTable);
-    }
-    
     // Drag & Drop Setup
     setupDragAndDrop('uploadSection', 'csvFile', processFile);
 });
@@ -18,13 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function processFile(file) {
     const loader = document.getElementById('loader');
     const tableContainer = document.getElementById('results');
-    const controlsContainer = document.getElementById('controls');
+    const courseTabs = document.getElementById('courseTabs');
     const error = document.getElementById('error');
     
     if(loader) loader.classList.add('active');
     if(error) error.classList.remove('active');
     if(tableContainer) tableContainer.style.display = 'none';
-    if(controlsContainer) controlsContainer.style.display = 'none';
+    if(courseTabs) courseTabs.style.display = 'none';
     academicYear = '';
     
     const reader = new FileReader();
@@ -38,14 +33,18 @@ function processFile(file) {
             if (academicYear && subtitle) {
                 subtitle.textContent = `Análisis de resultados por materia - Curso ${academicYear}`;
             }
+            
+            const yearTitle = document.getElementById('year-title');
+            if (yearTitle && academicYear) {
+                yearTitle.textContent = `Resultados - Curso ${academicYear}`;
+            }
 
             const courses = getUniqueCourses(rawData);
-            populateCourseSelect(courses);
-            
-            if(controlsContainer) controlsContainer.style.display = 'block';
+            createCourseTabs(courses);
             
             if (courses.length > 0) {
-                updateTable();
+                // Select first course by default
+                switchCourse(courses[0]);
             }
 
             if(loader) loader.classList.remove('active');
@@ -115,28 +114,37 @@ function getUniqueCourses(data) {
     return result.sort((a, b) => orden[a] - orden[b]);
 }
 
-function populateCourseSelect(courses) {
-    const courseSelect = document.getElementById('courseSelect');
-    if(!courseSelect) return;
-    courseSelect.innerHTML = '';
+function createCourseTabs(courses) {
+    const tabsContainer = document.getElementById('courseTabs');
+    if(!tabsContainer) return;
+    tabsContainer.innerHTML = '';
+    
     courses.forEach(c => {
-        const option = document.createElement('option');
-        option.value = c;
-        option.textContent = c;
-        courseSelect.appendChild(option);
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn';
+        btn.textContent = c;
+        btn.onclick = () => switchCourse(c);
+        tabsContainer.appendChild(btn);
     });
+    
+    if(courses.length > 0) tabsContainer.style.display = 'flex';
 }
 
-function updateTable() {
-    const courseSelect = document.getElementById('courseSelect');
-    const tableContainer = document.getElementById('results');
+function switchCourse(courseName) {
+    currentCourse = courseName;
     
-    const selectedCourse = courseSelect.value;
-    if (!selectedCourse) return;
+    // Update Active Tab
+    const tabs = document.querySelectorAll('#courseTabs .tab-btn');
+    tabs.forEach(btn => {
+        if(btn.textContent === courseName) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
     
-    currentStats = processStats(rawData, selectedCourse);
-    renderTable(currentStats, selectedCourse);
-    if(tableContainer) tableContainer.style.display = 'block';
+    // Process and Render
+    currentStats = processStats(rawData, courseName);
+    renderTable(currentStats, courseName);
+    
+    document.getElementById('results').style.display = 'block';
 }
 
 function parseGrade(grade) {
@@ -336,8 +344,7 @@ function renderTable(stats, selectedCourse) {
 function downloadCSV() {
     if (!currentStats || currentStats.length === 0) return alert('No hay datos para descargar.');
     
-    const courseSelect = document.getElementById('courseSelect');
-    const selectedCourse = courseSelect.value;
+    const selectedCourse = currentCourse;
     const isBach = selectedCourse.toLowerCase().includes('bachillerato');
     
     let csv = isBach ? 'MATERIA,1EV,2EV,3EV,ORD,EXT\n' : 'MATERIA,1EV,2EV,3EV,FINAL\n';
