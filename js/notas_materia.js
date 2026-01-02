@@ -58,7 +58,6 @@ function processFile(file) {
 }
 
 function processCSVData(csvText) {
-    // Use global parseCSV from common.js
     if (typeof parseCSV !== 'function') throw new Error('Función parseCSV no encontrada. Recarga la página.');
     
     const rows = parseCSV(csvText);
@@ -96,20 +95,20 @@ function getUniqueCourses(data) {
     const courseList = Array.from(rawCourses);
 
     const orden = {
-        '1º de E.S.O. (LOMLOE)': 1,
-        '2º de E.S.O. (LOMLOE)': 2,
-        '3º ESO + Diversificación': 3,
-        '4º ESO + Diversificación': 4,
+        '1º de E.S.O.': 1,
+        '2º de E.S.O.': 2,
+        '3º de E.S.O.': 3,
+        '4º de E.S.O.': 4,
         '1º de Bachillerato': 5,
         '2º de Bachillerato': 6
     };
 
     const result = [];
     
-    if (courseList.some(c => c === '1º de E.S.O. (LOMLOE)')) result.push('1º de E.S.O. (LOMLOE)');
-    if (courseList.some(c => c === '2º de E.S.O. (LOMLOE)')) result.push('2º de E.S.O. (LOMLOE)');
-    if (courseList.some(c => c === '3º de E.S.O. (LOMLOE)' || c === '1º Programa de Diversificación Curricular (LOMLOE)')) result.push('3º ESO + Diversificación');
-    if (courseList.some(c => c === '4º de E.S.O. (LOMLOE)' || c === '2º Programa de Diversificación Curricular (LOMLOE)')) result.push('4º ESO + Diversificación');
+    if (courseList.some(c => c.startsWith('1º de E.S.O.'))) result.push('1º de E.S.O.');
+    if (courseList.some(c => c.startsWith('2º de E.S.O.'))) result.push('2º de E.S.O.');
+    if (courseList.some(c => c.startsWith('3º de E.S.O.') || c.includes('1º Programa de Diversificación'))) result.push('3º de E.S.O.');
+    if (courseList.some(c => c.startsWith('4º de E.S.O.') || c.includes('2º Programa de Diversificación'))) result.push('4º de E.S.O.');
     if (courseList.some(c => c.startsWith('1º de Bachillerato'))) result.push('1º de Bachillerato');
     if (courseList.some(c => c.startsWith('2º de Bachillerato'))) result.push('2º de Bachillerato');
 
@@ -121,15 +120,33 @@ function createCourseTabs(courses) {
     if(!tabsContainer) return;
     tabsContainer.innerHTML = '';
     
+    // Create two rows
+    const esoRow = document.createElement('div');
+    esoRow.className = 'tabs';
+    esoRow.style.justifyContent = 'center';
+    esoRow.style.marginBottom = '10px';
+    
+    const bachRow = document.createElement('div');
+    bachRow.className = 'tabs';
+    bachRow.style.justifyContent = 'center';
+
     courses.forEach(c => {
         const btn = document.createElement('button');
         btn.className = 'tab-btn';
         btn.textContent = c;
         btn.onclick = () => switchCourse(c);
-        tabsContainer.appendChild(btn);
+        
+        if (c.includes('E.S.O.')) {
+            esoRow.appendChild(btn);
+        } else {
+            bachRow.appendChild(btn);
+        }
     });
     
-    if(courses.length > 0) tabsContainer.style.display = 'flex';
+    if (esoRow.children.length > 0) tabsContainer.appendChild(esoRow);
+    if (bachRow.children.length > 0) tabsContainer.appendChild(bachRow);
+    
+    if(courses.length > 0) tabsContainer.style.display = 'block';
 }
 
 function switchCourse(courseName) {
@@ -167,23 +184,25 @@ function isPass(grade) {
 function processStats(data, selectedCourse) {
     let courseData = [];
 
-    // Filter Logic
-    if (selectedCourse === '3º ESO + Diversificación') {
+    // Filter Logic with simplified names
+    if (selectedCourse === '1º de E.S.O.') {
+        courseData = data.filter(d => d.CURSO.startsWith('1º de E.S.O.') && d.ESTADO === 'Matriculada');
+    } else if (selectedCourse === '2º de E.S.O.') {
+        courseData = data.filter(d => d.CURSO.startsWith('2º de E.S.O.') && d.ESTADO === 'Matriculada');
+    } else if (selectedCourse === '3º de E.S.O.') {
         courseData = data.filter(d => 
-            (d.CURSO === '3º de E.S.O. (LOMLOE)' || d.CURSO === '1º Programa de Diversificación Curricular (LOMLOE)') && 
+            (d.CURSO.startsWith('3º de E.S.O.') || d.CURSO === '1º Programa de Diversificación Curricular (LOMLOE)') && 
             d.ESTADO === 'Matriculada'
         );
-    } else if (selectedCourse === '4º ESO + Diversificación') {
+    } else if (selectedCourse === '4º de E.S.O.') {
         courseData = data.filter(d => 
-            (d.CURSO === '4º de E.S.O. (LOMLOE)' || d.CURSO === '2º Programa de Diversificación Curricular (LOMLOE)') && 
+            (d.CURSO.startsWith('4º de E.S.O.') || d.CURSO === '2º Programa de Diversificación Curricular (LOMLOE)') && 
             d.ESTADO === 'Matriculada'
         );
     } else if (selectedCourse === '1º de Bachillerato') {
         courseData = data.filter(d => d.CURSO.startsWith('1º de Bachillerato') && d.ESTADO === 'Matriculada');
     } else if (selectedCourse === '2º de Bachillerato') {
         courseData = data.filter(d => d.CURSO.startsWith('2º de Bachillerato') && d.ESTADO === 'Matriculada');
-    } else {
-        courseData = data.filter(d => d.CURSO === selectedCourse && d.ESTADO === 'Matriculada');
     }
     
     const subjectsMap = new Map();
