@@ -350,14 +350,20 @@ function renderTable(tableId, stats) {
     
     stats.forEach(grp => {
         const row = document.createElement('tr');
+        
+        const formatCell = (count, total) => {
+            const pct = total > 0 ? ((count / total) * 100).toFixed(1) + '%' : '0.0%';
+            return `${count} (${pct})`;
+        };
+
         row.innerHTML = `
             <td><strong>${grp.name}</strong></td>
             <td>${grp.total}</td>
-            <td class="good">${grp.pass}</td>
-            <td>${grp.f1}</td>
-            <td class="warning">${grp.f2}</td>
-            <td class="bad">${grp.f3}</td>
-            <td class="bad" style="font-weight:bold">${grp.f4p}</td>
+            <td class="good">${formatCell(grp.pass, grp.total)}</td>
+            <td>${formatCell(grp.f1, grp.total)}</td>
+            <td class="warning">${formatCell(grp.f2, grp.total)}</td>
+            <td class="bad">${formatCell(grp.f3, grp.total)}</td>
+            <td class="bad" style="font-weight:bold">${formatCell(grp.f4p, grp.total)}</td>
         `;
         tbody.appendChild(row);
     });
