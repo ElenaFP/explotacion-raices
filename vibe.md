@@ -16,11 +16,15 @@ El proyecto se ha reestructurado desde tres repositorios independientes a una ar
 
 2.  **Módulos Funcionales (Separación de Intereses):**
     -   **Asistencia (`asistencia.html`, `js/asistencia.js`):** Enfocado en métricas de absentismo. Lógica de agrupación por niveles educativos fijos.
+        -   *Refactor:* Simplificación de nombres de cursos (eliminación de sufijos legales como LOMLOE).
     -   **Notas por Grupo (`notas_grupo.html`, `js/notas_grupo.js`):** Enfocado en el rendimiento del alumno. Incluye lógica compleja de agrupación dinámica de unidades (UI de mapeo de grupos).
+        -   *Mejora:* Cálculo y visualización de porcentajes junto a los valores absolutos.
     -   **Notas por Materia (`notas_materia.html`, `js/notas_materia.js`):** Enfocado en el rendimiento por asignatura.
-        -   **UX Refactorizada (v4):** Organización de pestañas en dos líneas (ESO/Bach), simplificación de nombres de curso (eliminando ley educativa) y visualización del año académico.
-        -   **Lógica Dinámica de Matemáticas:** Detección automática de múltiples asignaturas de Matemáticas en 4º ESO y Bachillerato para generar una fila de "Matemáticas (Total)" resaltada.
-        -   **Columnas Inteligentes:** Ocultación dinámica de la columna 3ª EV si no hay datos. Filtrado de columnas por etapa educativa (ESO vs Bach).
+        -   *UX Refactorizada:* Se reemplazó el desplegable (`<select>`) por un sistema de pestañas (`buttons`) organizado en dos filas (ESO / Bachillerato).
+        -   *Visualización:* El año académico se muestra explícitamente sobre la tabla de resultados.
+        -   *Lógica de Negocio:* Incluye agregaciones curriculares (Matemáticas A+B, Inglés Total) y filtrado de columnas por etapa educativa (ESO vs Bach).
+        -   *Agrupación Dinámica:* Detección automática de múltiples asignaturas de Matemáticas para generar una fila de "Total" resaltada.
+        -   *Columnas Dinámicas:* Ocultación automática de la columna 3ª Evaluación si no contiene datos.
 
 ### Decisiones de Diseño Clave
 
@@ -34,8 +38,11 @@ El proyecto se ha reestructurado desde tres repositorios independientes a una ar
 2.  **Extracción de Comunes:** Se identificaron patrones repetidos (parsing CSV, estilos) y se movieron a archivos compartidos.
 3.  **Corrección de Conflictos:** Se solucionaron problemas de colisión de nombres (ej. función `parseCSV` global vs local) que causaban recursión infinita.
 4.  **Optimización UI:** Se mejoró la navegación cruzada entre herramientas y se unificó el diseño visual (banners, botones, loaders).
-5.  **Mejora de UX en Notas por Materia:** Cambio de control de selección de dropdown a pestañas, simplificación de nombres de curso y organización multi-línea.
-6.  **Automatización de Agrupaciones:** Implementación de lógica para agrupar automáticamente variantes de Matemáticas según el contenido del fichero.
+5.  **Mejora de UX en Notas por Materia (v4):** 
+    -   Cambio de control de selección de dropdown a pestañas organizadas.
+    -   Lógica dinámica para Matemáticas (Total).
+    -   Ocultación condicional de columnas vacías.
+6.  **Mejora Visual en Notas por Grupo:** Inclusión de porcentajes.
 
 ## Estado Actual
 

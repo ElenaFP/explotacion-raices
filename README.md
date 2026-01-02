@@ -11,22 +11,29 @@ Analiza el absentismo escolar por evaluaciones.
 - **Métricas:** Faltas y retrasos totales y medios por alumno.
 - **Desglose:** Por evaluaciones (1ª, 2ª, 3ª) y total del curso.
 - **Agrupaciones:** Consolida grupos de Bachillerato y Diversificación automáticamente.
+- **Nomenclatura Simplificada:** Nombres de cursos limpios (ej. "1º de E.S.O.").
 
 ### 2. 👥 Notas por Grupo
 Visión general del rendimiento académico por grupos de alumnos.
-- **Estadísticas:** Número de alumnos con todo aprobado, o con 1, 2, 3, o 4+ suspensos.
+- **Estadísticas Detalladas:** Muestra el número de alumnos y el **porcentaje** correspondiente para:
+    - Todo aprobado.
+    - 1, 2, 3, o 4+ suspensos.
 - **Gestión de Grupos:** Permite agrupar unidades (ej. 1ºA, 1ºB -> 1º ESO) mediante una interfaz visual de arrastrar y soltar.
 - **Evaluaciones:** Soporte para evaluaciones trimestrales, final ordinaria y extraordinaria.
 
 ### 3. 📚 Notas por Materia
 Análisis detallado de los resultados por asignatura.
 - **Porcentajes de Aprobados:** Cálculo automático por materia y evaluación.
-- **Lógica por Nivel:** Muestra columnas relevantes según sea ESO (Final) o Bachillerato (Ordinaria/Extraordinaria).
-- **Agrupaciones Inteligentes:** 
-    - Inglés Global (suma de todas las materias de inglés).
-    - Matemáticas A+B (4º ESO).
-    - Matemáticas Total (Bachillerato: Ciencias + Sociales).
-- **Resaltado Visual:** Identificación rápida de materias troncales (Lengua, Matemáticas, Geografía).
+- **Interfaz Intuitiva:**
+    - Selección de curso mediante **pestañas** organizadas por etapa (ESO / Bachillerato).
+    - Visualización clara del **año académico** en curso.
+- **Lógica Inteligente:**
+    - **Columnas Dinámicas:** La columna de la 3ª Evaluación se oculta automáticamente si no contiene datos.
+    - **Filtrado por Etapa:** Muestra columnas "Final" para ESO y "Ord/Ext" para Bachillerato.
+- **Agrupaciones Especiales:** 
+    - **Inglés Global:** Combina todas las materias de inglés.
+    - **Matemáticas (Total):** Genera automáticamente una fila de resumen si detecta múltiples asignaturas de matemáticas en 4º ESO o Bachillerato.
+- **Resaltado Visual:** Identificación rápida de materias troncales (Lengua, Matemáticas, Geografía) y filas de totales.
 
 ## 🔒 Privacidad y Seguridad
 
