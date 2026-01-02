@@ -4,6 +4,11 @@ Suite de herramientas web unificada para analizar datos académicos exportados d
 
 Esta suite integra tres herramientas especializadas en una sola interfaz moderna y fácil de usar, permitiendo a los docentes y equipos directivos extraer información valiosa de los archivos CSV de "Alumnos con materia y notas".
 
+## 🔗 Acceso a la aplicación
+
+Puedes acceder a la herramienta directamente desde el siguiente enlace:
+👉 **[https://elenafp.github.io/explotacion-raices/](https://elenafp.github.io/explotacion-raices/)**
+
 ## 🚀 Herramientas Incluidas
 
 ### 1. 📅 Análisis de Asistencia
