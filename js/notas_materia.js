@@ -1,4 +1,4 @@
-// Logic for Subject Grades (Notas por Materia)
+// Logic for Subject Pass Rates (Aprobados por Materia)
 
 let rawData = [];
 let currentStats = [];

@@ -1,4 +1,4 @@
-// Logic for Group Grades (Notas por Grupo)
+// Logic for Group Results (Resultados por Grupo)
 
 let globalStudents = {};
 let globalUnits = [];

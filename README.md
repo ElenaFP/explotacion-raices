@@ -24,7 +24,7 @@ Analiza el absentismo escolar por evaluaciones.
     - **Conjuntos múltiples:** define varios conjuntos de niveles para generar varios gráficos a la vez.
     - **Descarga PNG** por gráfico con fondo blanco.
 
-### 2. 👥 Notas por Grupo
+### 2. 👥 Resultados por Grupo
 Visión general del rendimiento académico por grupos de alumnos.
 - **Estadísticas Detalladas:** Muestra el número de alumnos y el **porcentaje** correspondiente para:
     - Todo aprobado.
@@ -38,7 +38,7 @@ Visión general del rendimiento académico por grupos de alumnos.
     - **Selector de evaluaciones:** elige qué evaluaciones incluir en los gráficos.
     - **Descarga como imagen PNG:** gráfico de barras descargable individualmente; tartas descargables como una única imagen por conjunto, con número de columnas configurable.
 
-### 3. 📚 Notas por Materia
+### 3. 📚 Aprobados por Materia
 Análisis detallado de los resultados por asignatura.
 - **Porcentajes de Aprobados:** Cálculo automático por materia y evaluación.
 - **Interfaz Intuitiva:**
@@ -77,7 +77,7 @@ Esta aplicación es una **Single Page Application (SPA)** estática que se ejecu
 
 - **HTML5 / CSS3:** Diseño moderno, responsive y limpio.
 - **JavaScript (Vanilla):** Lógica de procesamiento de datos optimizada y sin dependencias externas pesadas.
-- **Chart.js 4 + chartjs-plugin-datalabels:** Visualización gráfica en Notas por Grupo (cargados vía CDN).
+- **Chart.js 4 + chartjs-plugin-datalabels:** Visualización gráfica en Resultados por Grupo (cargados vía CDN).
 - **CSS Grid/Flexbox:** Para la maquetación de la interfaz unificada.
 
 ## 📂 Estructura del Proyecto
@@ -86,8 +86,8 @@ Esta aplicación es una **Single Page Application (SPA)** estática que se ejecu
 explotacion-raices/
 ├── index.html          # Portal de inicio
 ├── asistencia.html     # Herramienta de asistencia
-├── notas_grupo.html    # Herramienta de notas por grupo
-├── notas_materia.html  # Herramienta de notas por materia
+├── resultados_grupo.html   # Herramienta de resultados por grupo
+├── aprobados_materia.html  # Herramienta de aprobados por materia
 ├── css/
 │   └── style.css       # Estilos compartidos
 └── js/
