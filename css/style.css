@@ -277,10 +277,6 @@ tbody tr:hover {
 .asistencia-table tbody tr:last-child:hover {
     background: #ffe69c;
 }
-.asistencia-table td.number {
-    font-family: 'Courier New', monospace;
-    font-weight: 500;
-}
 
 /* Notas por Materia: Highlights */
 .highlight-row {
