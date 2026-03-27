@@ -34,6 +34,28 @@
             <p>Procesando datos...</p>
         </div>
 
+        <!-- View Mode Toggle -->
+        <div id="view-mode-toggle" style="display:none; justify-content: center; margin-bottom: 16px;">
+            <div class="chart-type-group">
+                <button class="chart-type-btn active" data-mode="nivel" onclick="setViewMode('nivel', this)">Por Nivel</button>
+                <button class="chart-type-btn" data-mode="grupo" onclick="setViewMode('grupo', this)">Por Grupo</button>
+            </div>
+        </div>
+
+        <!-- Materia Grouping Container -->
+        <div id="materia-grouping-container" style="display:none;">
+            <div class="results-header" style="border-bottom: none; margin-bottom: 10px;">
+                <h2 style="font-size: 1.5em; color: #333;">🛠️ Configuración de Grupos</h2>
+            </div>
+            <p style="color: #666; margin-bottom: 20px;">Combina diferentes unidades (ej. A, B, C) en un solo grupo arrastrándolas entre sí o seleccionándolas.</p>
+            <div class="group-controls">
+                <input type="text" id="materia-bulk-group-name" placeholder="Nombre para el grupo (ej. 1º ESO)">
+                <button class="btn" onclick="bulkGroupMateria()">Agrupar Seleccionados</button>
+                <button class="btn" onclick="calculateAndShowMateriaGroupResults()">Ver Resultados ➡️</button>
+            </div>
+            <div class="group-list" id="materia-group-list"></div>
+        </div>
+
         <!-- Controls (Tabs for Courses) -->
         <div class="tabs" id="courseTabs" style="display:none; justify-content: center; margin-bottom: 30px;">
             <!-- Tabs injected via JS -->
@@ -43,9 +65,10 @@
         <div id="results">
             <div class="results-header">
                 <h2 id="year-title" class="table-title">Resultados</h2>
-                <button class="download-btn" onclick="downloadCSV()">
-                    ⬇️ Descargar CSV
-                </button>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <button id="btn-reconfig-grupos" class="btn btn-secondary" onclick="showMateriaGroupingUI()" style="display:none;">⚙️ Reconfigurar Grupos</button>
+                    <button class="download-btn" onclick="downloadCSV()">⬇️ Descargar CSV</button>
+                </div>
             </div>
             <table id="stats-table">
                 <thead>

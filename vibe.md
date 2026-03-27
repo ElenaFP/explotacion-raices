@@ -2,7 +2,7 @@
 
 **Nombre:** Explotación de Datos Raíces
 **Acceso:** [https://elenafp.github.io/explotacion-raices/](https://elenafp.github.io/explotacion-raices/)
-**Fecha:** 27 de Marzo de 2026 (última actualización)
+**Fecha:** 27 de Marzo de 2026 (última actualización: modo Por Grupo en Aprobados por Materia)
 **Objetivo:** Unificar tres herramientas de análisis de datos académicos en una suite web coherente, modular y fácil de mantener.
 
 ## Arquitectura
@@ -29,6 +29,7 @@ El proyecto se ha reestructurado desde tres repositorios independientes a una ar
         -   *Lógica de Negocio:* Incluye agregaciones curriculares (Matemáticas A+B, Inglés Total) y filtrado de columnas por etapa educativa (ESO vs Bach).
         -   *Agrupación Dinámica:* Detección automática de múltiples asignaturas de Matemáticas para generar una fila de "Total" resaltada.
         -   *Columnas Dinámicas:* Ocultación automática de la columna 3ª Evaluación si no contiene datos.
+        -   *Modo Por Grupo:* Toggle "Por Nivel / Por Grupo" encima de las pestañas. En modo Por Grupo se muestra la UI de configuración de grupos (drag & drop, agrupación por nombre, idéntica a Resultados por Grupo). Las pestañas cambian a los grupos configurados; botón "Reconfigurar Grupos" disponible en todo momento. `processStatsByUnidades` filtra por UNIDAD en lugar de por CURSO y detecta automáticamente si el grupo es ESO o Bachillerato.
 
 ### Decisiones de Diseño Clave
 
@@ -51,6 +52,8 @@ El proyecto se ha reestructurado desde tres repositorios independientes a una ar
 7.  **Corrección de datos en Resultados por Grupo:** Los alumnos sin nota ya no se contabilizan como aprobados. El parsing rastrea por alumno si tiene nota real (`hasGrade1ev`, `hasGrade2ev`, `hasGradeOrd`) y `analyzeGradesWithMapping` los excluye si no la tienen.
 8.  **Gráficos en Resultados por Grupo:** Nueva pestaña con Chart.js. Columnas apiladas con etiquetas de porcentaje incrustadas, pie charts con título dentro del canvas y leyenda única por conjunto, exportación PNG por conjunto, selector de evaluaciones y conjuntos múltiples configurables.
 9.  **Gráficos en Análisis de Asistencia:** Nueva pestaña con columnas agrupadas. Selector de métrica (faltas/retrasos), selector de evaluaciones, toggle de agrupación (por evaluación / por nivel) y conjuntos múltiples de niveles.
+10. **Renombrado de módulos:** "Notas por Grupo" → "Resultados por Grupo"; "Notas por Materia" → "Aprobados por Materia". Archivos HTML renombrados a `resultados_grupo.html` y `aprobados_materia.html`.
+11. **Modo Por Grupo en Aprobados por Materia:** Toggle Por Nivel / Por Grupo. Configuración de grupos con drag & drop (igual que Resultados por Grupo). Las pestañas muestran grupos configurados. Botón "Reconfigurar Grupos" disponible tras ver resultados.
 
 ## Estado Actual
 

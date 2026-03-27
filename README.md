@@ -41,13 +41,14 @@ Visión general del rendimiento académico por grupos de alumnos.
 ### 3. 📚 Aprobados por Materia
 Análisis detallado de los resultados por asignatura.
 - **Porcentajes de Aprobados:** Cálculo automático por materia y evaluación.
-- **Interfaz Intuitiva:**
-    - Selección de curso mediante **pestañas** organizadas por etapa (ESO / Bachillerato).
-    - Visualización clara del **año académico** en curso.
+- **Dos modos de visualización:**
+    - **Por Nivel:** Selección de curso mediante pestañas organizadas por etapa (ESO / Bachillerato). Muestra el porcentaje de aprobados de todo el nivel.
+    - **Por Grupo:** Permite configurar agrupaciones de unidades (ej. 1ºA + 1ºB → 1º ESO) con la misma interfaz de arrastrar y soltar que *Resultados por Grupo*. Las pestañas muestran los grupos configurados en lugar de los niveles. Incluye botón *Reconfigurar Grupos* para ajustar la configuración en cualquier momento.
+- **Visualización clara del año académico** en curso.
 - **Lógica Inteligente:**
     - **Columnas Dinámicas:** La columna de la 3ª Evaluación se oculta automáticamente si no contiene datos.
     - **Filtrado por Etapa:** Muestra columnas "Final" para ESO y "Ord/Ext" para Bachillerato.
-- **Agrupaciones Especiales:** 
+- **Agrupaciones Especiales:**
     - **Inglés Global:** Combina todas las materias de inglés.
     - **Matemáticas (Total):** Genera automáticamente una fila de resumen si detecta múltiples asignaturas de matemáticas en 4º ESO o Bachillerato.
 - **Resaltado Visual:** Identificación rápida de materias troncales (Lengua, Matemáticas, Geografía) y filas de totales.
