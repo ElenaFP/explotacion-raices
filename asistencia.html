@@ -41,6 +41,7 @@
                 <button class="tab-btn" onclick="switchTab('section-2ev', this)">2ª Evaluación</button>
                 <button class="tab-btn" onclick="switchTab('section-3ev', this)">3ª Evaluación</button>
                 <button class="tab-btn" onclick="switchTab('section-total', this)">Total del Curso</button>
+                <button class="tab-btn" onclick="switchTab('section-graficos', this)">📊 Gráficos</button>
             </div>
 
             <div id="section-1ev" class="evaluation-section active">
@@ -82,9 +83,33 @@
                 </div>
                 <div id="tabletotal"></div>
             </div>
+            <div id="section-graficos" class="evaluation-section">
+                <div class="chart-controls">
+                    <span class="chart-control-label">Métrica:</span>
+                    <div class="chart-type-group">
+                        <button class="chart-type-btn active" id="btn-faltas" onclick="setMetric('faltas', this)">📉 Media de Faltas</button>
+                        <button class="chart-type-btn" id="btn-retrasos" onclick="setMetric('retrasos', this)">⏰ Media de Retrasos</button>
+                    </div>
+                    <span class="chart-control-label">Agrupar por:</span>
+                    <div class="chart-type-group">
+                        <button class="chart-type-btn active" id="btn-by-eval" onclick="setGrouping('by-eval', this)">Por Evaluación</button>
+                        <button class="chart-type-btn" id="btn-by-nivel" onclick="setGrouping('by-nivel', this)">Por Nivel</button>
+                    </div>
+                </div>
+                <div id="eval-selector-container-asist" class="eval-selector-container"></div>
+                <p style="color:#64748b; margin-bottom:16px; font-size:0.95em;">Selecciona los niveles que quieres representar en cada gráfico. Puedes añadir varios conjuntos para generar varios gráficos a la vez.</p>
+                <div id="chart-sets-container"></div>
+                <div class="chart-actions">
+                    <button class="btn btn-secondary" onclick="addChartSet()">＋ Añadir conjunto</button>
+                    <button class="btn" onclick="generateCharts()">📊 Generar gráficos</button>
+                </div>
+                <div id="charts-output"></div>
+            </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="js/common.js"></script>
     <script src="js/asistencia.js"></script>
 </body>

@@ -174,6 +174,7 @@ function processCSV(csvContent) {
     renderTable('2ev', document.getElementById('table2ev'));
     renderTable('3ev', document.getElementById('table3ev'));
     renderTable('total', document.getElementById('tabletotal'));
+    initChartSection();
 }
 
 function ordenCurso(curso) {
@@ -289,4 +290,266 @@ function downloadCSV(evaluation) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+// ===== GRÁFICOS =====
+
+const CHART_EVAL_DEFS = [
+    { key: '1ev',   label: '1ª Ev' },
+    { key: '2ev',   label: '2ª Ev' },
+    { key: '3ev',   label: '3ª Ev' },
+    { key: 'total', label: 'Total' }
+];
+
+// Colors per nivel (agrupación por evaluación) and per eval (agrupación por nivel)
+const NIVEL_COLORS = ['#667eea', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4'];
+const EVAL_COLORS  = ['#667eea', '#f59e0b', '#10b981', '#ef4444'];
+
+let currentMetric   = 'faltas';
+let currentGrouping = 'by-eval'; // 'by-eval' | 'by-nivel'
+let chartInstances  = [];
+
+function initChartSection() {
+    chartInstances.forEach(c => c.destroy());
+    chartInstances = [];
+    const output = document.getElementById('charts-output');
+    if (output) output.innerHTML = '';
+    const container = document.getElementById('chart-sets-container');
+    if (!container) return;
+    container.innerHTML = '';
+    initEvalSelectorAsist();
+    addChartSet();
+}
+
+function setMetric(metric, btn) {
+    currentMetric = metric;
+    btn.closest('.chart-type-group').querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function setGrouping(grouping, btn) {
+    currentGrouping = grouping;
+    btn.closest('.chart-type-group').querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function getAvailableNiveles() {
+    const niveles = new Set();
+    Object.values(processedData).forEach(ev => Object.keys(ev.data).forEach(c => niveles.add(c)));
+    return Array.from(niveles).sort((a, b) => ordenCurso(a) - ordenCurso(b));
+}
+
+function getAvailableEvalsAsist() {
+    return CHART_EVAL_DEFS.filter(({ key }) => {
+        const ev = processedData[key];
+        return ev && Object.values(ev.data).some(d => d.faltas > 0 || d.retrasos > 0);
+    });
+}
+
+function initEvalSelectorAsist() {
+    const container = document.getElementById('eval-selector-container-asist');
+    if (!container) return;
+    container.innerHTML = '<span class="chart-control-label">Evaluaciones:</span>';
+    getAvailableEvalsAsist().forEach(ev => {
+        const label = document.createElement('label');
+        label.className = 'chart-group-label';
+        label.innerHTML = `<input type="checkbox" value="${ev.key}" checked> ${ev.label}`;
+        container.appendChild(label);
+    });
+}
+
+function getSelectedEvalsAsist() {
+    const checked = new Set(
+        Array.from(document.querySelectorAll('#eval-selector-container-asist input:checked')).map(cb => cb.value)
+    );
+    return getAvailableEvalsAsist().filter(ev => checked.has(ev.key));
+}
+
+function getMediaValue(evalKey, curso) {
+    const ev = processedData[evalKey];
+    if (!ev || !ev.data[curso]) return 0;
+    const n = ev.nias[curso] ? ev.nias[curso].size : 0;
+    if (n === 0) return 0;
+    return (currentMetric === 'faltas' ? ev.data[curso].faltas : ev.data[curso].retrasos) / n;
+}
+
+function addChartSet() {
+    const container = document.getElementById('chart-sets-container');
+    if (!container) return;
+
+    const niveles = getAvailableNiveles();
+    const setId = 'chart-set-' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'chart-set';
+    div.id = setId;
+
+    const header = document.createElement('div');
+    header.className = 'chart-set-header';
+    header.innerHTML = `<span class="chart-set-title">Conjunto de niveles</span>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8em;" onclick="toggleAllNiveles('${setId}', this)">Deseleccionar todo</button>
+            <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8em;" onclick="removeChartSet('${setId}')">✕ Eliminar</button>
+        </div>`;
+
+    const groupsDiv = document.createElement('div');
+    groupsDiv.className = 'chart-set-groups';
+    niveles.forEach(nivel => {
+        const label = document.createElement('label');
+        label.className = 'chart-group-label';
+        label.innerHTML = `<input type="checkbox" value="${nivel}" checked> ${nivel}`;
+        groupsDiv.appendChild(label);
+    });
+
+    div.appendChild(header);
+    div.appendChild(groupsDiv);
+    container.appendChild(div);
+}
+
+function removeChartSet(setId) {
+    document.getElementById(setId)?.remove();
+}
+
+function toggleAllNiveles(setId, btn) {
+    const checkboxes = Array.from(document.querySelectorAll(`#${setId} input[type=checkbox]`));
+    const allChecked = checkboxes.every(cb => cb.checked);
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+    btn.textContent = allChecked ? 'Seleccionar todo' : 'Deseleccionar todo';
+}
+
+function generateCharts() {
+    chartInstances.forEach(c => c.destroy());
+    chartInstances = [];
+
+    const output = document.getElementById('charts-output');
+    output.innerHTML = '';
+
+    const selectedEvals = getSelectedEvalsAsist();
+    if (selectedEvals.length === 0) {
+        output.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Selecciona al menos una evaluación.</p>';
+        return;
+    }
+
+    const allNiveles = getAvailableNiveles();
+    const sets = document.querySelectorAll('.chart-set');
+    let chartIndex = 0;
+
+    sets.forEach(set => {
+        const selectedNiveles = Array.from(set.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
+        if (selectedNiveles.length === 0) return;
+
+        chartIndex++;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'chart-wrapper';
+
+        const title = document.createElement('h3');
+        title.className = 'chart-section-title';
+        title.textContent = selectedNiveles.join(' · ');
+        wrapper.appendChild(title);
+
+        const canvasWrap = document.createElement('div');
+        canvasWrap.className = 'canvas-container';
+        const canvas = document.createElement('canvas');
+        canvasWrap.appendChild(canvas);
+        wrapper.appendChild(canvasWrap);
+
+        const dlBtn = document.createElement('button');
+        dlBtn.className = 'download-btn';
+        dlBtn.style.marginTop = '12px';
+        dlBtn.innerHTML = '⬇️ Descargar imagen';
+        dlBtn.onclick = () => downloadChartImage(canvas, `asistencia_${chartIndex}`);
+        wrapper.appendChild(dlBtn);
+
+        output.appendChild(wrapper);
+        const chart = buildGroupedChart(canvas, selectedNiveles, allNiveles, selectedEvals);
+        if (chart) chartInstances.push(chart);
+    });
+
+    if (output.innerHTML === '') {
+        output.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Selecciona al menos un nivel en cada conjunto.</p>';
+    }
+}
+
+function buildGroupedChart(canvas, selectedNiveles, allNiveles, selectedEvals) {
+    const metricLabel = currentMetric === 'faltas' ? 'Media de Faltas' : 'Media de Retrasos';
+
+    let labels, datasets;
+
+    if (currentGrouping === 'by-eval') {
+        // X = evaluaciones, una barra por nivel
+        labels = selectedEvals.map(e => e.label);
+        datasets = selectedNiveles.map(nivel => {
+            const ci = allNiveles.indexOf(nivel) % NIVEL_COLORS.length;
+            return {
+                label: nivel,
+                data: selectedEvals.map(ev => parseFloat(getMediaValue(ev.key, nivel).toFixed(2))),
+                backgroundColor: NIVEL_COLORS[ci] + 'cc',
+                borderColor: NIVEL_COLORS[ci],
+                borderWidth: 1, borderRadius: 4,
+            };
+        });
+    } else {
+        // X = niveles, una barra por evaluación
+        labels = selectedNiveles;
+        datasets = selectedEvals.map((ev, i) => ({
+            label: ev.label,
+            data: selectedNiveles.map(nivel => parseFloat(getMediaValue(ev.key, nivel).toFixed(2))),
+            backgroundColor: EVAL_COLORS[i % EVAL_COLORS.length] + 'cc',
+            borderColor: EVAL_COLORS[i % EVAL_COLORS.length],
+            borderWidth: 1, borderRadius: 4,
+        }));
+    }
+
+    return new Chart(canvas, {
+        type: 'bar',
+        plugins: [ChartDataLabels],
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 20 } },
+            plugins: {
+                title: {
+                    display: true,
+                    text: metricLabel,
+                    font: { size: 14, weight: 'bold' },
+                    color: '#333',
+                    padding: { bottom: 12 }
+                },
+                legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } },
+                tooltip: {
+                    callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw.toFixed(2)}` }
+                },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'end',
+                    color: '#475569',
+                    font: { size: 10, weight: 'bold' },
+                    formatter: value => value > 0 ? value.toFixed(1) : ''
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.06)' },
+                    ticks: { font: { size: 11 } },
+                    title: { display: true, text: metricLabel, font: { size: 11 }, color: '#64748b' }
+                }
+            }
+        }
+    });
+}
+
+function downloadChartImage(canvas, filename) {
+    const offscreen = document.createElement('canvas');
+    offscreen.width = canvas.width;
+    offscreen.height = canvas.height;
+    const ctx = offscreen.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, offscreen.width, offscreen.height);
+    ctx.drawImage(canvas, 0, 0);
+    const link = document.createElement('a');
+    link.download = filename + '.png';
+    link.href = offscreen.toDataURL('image/png');
+    link.click();
 }

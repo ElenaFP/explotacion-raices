@@ -2,7 +2,7 @@
 
 **Nombre:** Explotación de Datos Raíces
 **Acceso:** [https://elenafp.github.io/explotacion-raices/](https://elenafp.github.io/explotacion-raices/)
-**Fecha:** 27 de Marzo de 2026
+**Fecha:** 27 de Marzo de 2026 (última actualización)
 **Objetivo:** Unificar tres herramientas de análisis de datos académicos en una suite web coherente, modular y fácil de mantener.
 
 ## Arquitectura
@@ -18,6 +18,7 @@ El proyecto se ha reestructurado desde tres repositorios independientes a una ar
 2.  **Módulos Funcionales (Separación de Intereses):**
     -   **Asistencia (`asistencia.html`, `js/asistencia.js`):** Enfocado en métricas de absentismo. Lógica de agrupación por niveles educativos fijos.
         -   *Refactor:* Simplificación de nombres de cursos (eliminación de sufijos legales como LOMLOE).
+        -   *Gráficos:* Nueva pestaña con Chart.js 4. Gráfico de columnas agrupadas configurable: métrica (faltas/retrasos), evaluaciones a incluir, modo de agrupación (por evaluación o por nivel) y conjuntos múltiples de niveles. Exportación PNG individual por gráfico.
     -   **Notas por Grupo (`notas_grupo.html`, `js/notas_grupo.js`):** Enfocado en el rendimiento del alumno. Incluye lógica compleja de agrupación dinámica de unidades (UI de mapeo de grupos).
         -   *Mejora:* Cálculo y visualización de porcentajes junto a los valores absolutos.
         -   *Corrección:* Los alumnos sin nota no se contabilizan como aprobados. Solo se muestran evaluaciones con notas reales.
@@ -49,6 +50,7 @@ El proyecto se ha reestructurado desde tres repositorios independientes a una ar
 6.  **Mejora Visual en Notas por Grupo:** Inclusión de porcentajes.
 7.  **Corrección de datos en Notas por Grupo:** Los alumnos sin nota ya no se contabilizan como aprobados. El parsing rastrea por alumno si tiene nota real (`hasGrade1ev`, `hasGrade2ev`, `hasGradeOrd`) y `analyzeGradesWithMapping` los excluye si no la tienen.
 8.  **Gráficos en Notas por Grupo:** Nueva pestaña con Chart.js. Columnas apiladas con etiquetas de porcentaje incrustadas, pie charts con título dentro del canvas y leyenda única por conjunto, exportación PNG por conjunto, selector de evaluaciones y conjuntos múltiples configurables.
+9.  **Gráficos en Análisis de Asistencia:** Nueva pestaña con columnas agrupadas. Selector de métrica (faltas/retrasos), selector de evaluaciones, toggle de agrupación (por evaluación / por nivel) y conjuntos múltiples de niveles.
 
 ## Estado Actual
 

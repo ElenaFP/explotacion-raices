@@ -17,6 +17,12 @@ Analiza el absentismo escolar por evaluaciones.
 - **Desglose:** Por evaluaciones (1ª, 2ª, 3ª) y total del curso.
 - **Agrupaciones:** Consolida grupos de Bachillerato y Diversificación automáticamente.
 - **Nomenclatura Simplificada:** Nombres de cursos limpios (ej. "1º de E.S.O.").
+- **Gráficos Exportables:** Nueva pestaña con visualización gráfica de la media de faltas o retrasos:
+    - **Selector de métrica:** Media de Faltas o Media de Retrasos.
+    - **Selector de evaluaciones:** elige qué evaluaciones incluir en el gráfico.
+    - **Dos modos de agrupación:** *Por Evaluación* (eje X = evaluaciones, barras = niveles) o *Por Nivel* (eje X = niveles, barras = evaluaciones).
+    - **Conjuntos múltiples:** define varios conjuntos de niveles para generar varios gráficos a la vez.
+    - **Descarga PNG** por gráfico con fondo blanco.
 
 ### 2. 👥 Notas por Grupo
 Visión general del rendimiento académico por grupos de alumnos.
