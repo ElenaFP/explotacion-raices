@@ -463,6 +463,190 @@ tbody tr:hover {
     display: block;
 }
 
+/* ===== Charts ===== */
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 16px;
+    padding: 14px 18px;
+    background: #f8fafc;
+    border-radius: 10px;
+    flex-wrap: wrap;
+}
+
+.chart-control-label {
+    font-weight: 600;
+    color: #475569;
+}
+
+.chart-type-group {
+    display: flex;
+    gap: 8px;
+}
+
+.chart-type-btn {
+    padding: 8px 18px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.chart-type-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.chart-type-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 3px 10px rgba(102,126,234,0.3);
+}
+
+.chart-set {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.chart-set-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.chart-set-title {
+    font-weight: 600;
+    color: #475569;
+}
+
+.chart-set-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 15px;
+}
+
+.chart-group-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.9em;
+    color: #475569;
+    transition: all 0.2s;
+    user-select: none;
+    background: white;
+}
+
+.chart-group-label:hover {
+    background: #f0f4ff;
+    border-color: #667eea;
+}
+
+.chart-group-label input {
+    accent-color: #667eea;
+}
+
+.eval-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 12px 18px;
+    background: #f8fafc;
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+
+.pie-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.pie-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.88em;
+    color: #475569;
+}
+
+.pie-legend-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.chart-actions {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0 24px;
+}
+
+.chart-wrapper {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    background: white;
+}
+
+.chart-section-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #667eea;
+}
+
+.canvas-container {
+    position: relative;
+    width: 100%;
+    height: 380px;
+}
+
+.pie-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: flex-start;
+}
+
+.pie-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.pie-title {
+    font-size: 0.88em;
+    font-weight: 600;
+    color: #475569;
+    text-align: center;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .container { padding: 20px; }

@@ -2,7 +2,7 @@
 
 **Nombre:** Explotación de Datos Raíces
 **Acceso:** [https://elenafp.github.io/explotacion-raices/](https://elenafp.github.io/explotacion-raices/)
-**Fecha:** 2 de Enero de 2026
+**Fecha:** 27 de Marzo de 2026
 **Objetivo:** Unificar tres herramientas de análisis de datos académicos en una suite web coherente, modular y fácil de mantener.
 
 ## Arquitectura
@@ -20,6 +20,8 @@ El proyecto se ha reestructurado desde tres repositorios independientes a una ar
         -   *Refactor:* Simplificación de nombres de cursos (eliminación de sufijos legales como LOMLOE).
     -   **Notas por Grupo (`notas_grupo.html`, `js/notas_grupo.js`):** Enfocado en el rendimiento del alumno. Incluye lógica compleja de agrupación dinámica de unidades (UI de mapeo de grupos).
         -   *Mejora:* Cálculo y visualización de porcentajes junto a los valores absolutos.
+        -   *Corrección:* Los alumnos sin nota no se contabilizan como aprobados. Solo se muestran evaluaciones con notas reales.
+        -   *Gráficos:* Nueva pestaña con Chart.js 4. Soporta columnas apiladas (con etiquetas de % sobre cada segmento vía chartjs-plugin-datalabels) y pie charts. Permite múltiples conjuntos de agrupaciones, selector de evaluaciones a incluir, y exportación PNG (barras: imagen individual; tartas: composición de todo el conjunto con leyenda, columnas por fila configurables).
     -   **Notas por Materia (`notas_materia.html`, `js/notas_materia.js`):** Enfocado en el rendimiento por asignatura.
         -   *UX Refactorizada:* Se reemplazó el desplegable (`<select>`) por un sistema de pestañas (`buttons`) organizado en dos filas (ESO / Bachillerato).
         -   *Visualización:* El año académico se muestra explícitamente sobre la tabla de resultados.
@@ -30,6 +32,7 @@ El proyecto se ha reestructurado desde tres repositorios independientes a una ar
 ### Decisiones de Diseño Clave
 
 -   **Vanilla JS:** Se ha eliminado cualquier dependencia de frameworks (React, Vue) para garantizar la máxima portabilidad (solo se necesita un navegador), rendimiento instantáneo y facilidad de despliegue (simples archivos estáticos).
+-   **Chart.js vía CDN:** La funcionalidad de gráficos usa Chart.js 4 y chartjs-plugin-datalabels cargados desde jsDelivr. Requiere conexión a internet en la carga inicial (igual que el acceso desde GitHub Pages).
 -   **Procesamiento Local:** Prioridad absoluta a la privacidad. El procesamiento de CSV se realiza en memoria del cliente usando `FileReader` API.
 -   **Modularidad de Archivos:** A pesar de ser una web estática, se ha separado el HTML, CSS y JS para facilitar el mantenimiento. Cada herramienta tiene su propio archivo JS de lógica específica para evitar conflictos de nombres y mantener el código limpio.
 
@@ -44,6 +47,8 @@ El proyecto se ha reestructurado desde tres repositorios independientes a una ar
     -   Lógica dinámica para Matemáticas (Total).
     -   Ocultación condicional de columnas vacías.
 6.  **Mejora Visual en Notas por Grupo:** Inclusión de porcentajes.
+7.  **Corrección de datos en Notas por Grupo:** Los alumnos sin nota ya no se contabilizan como aprobados. El parsing rastrea por alumno si tiene nota real (`hasGrade1ev`, `hasGrade2ev`, `hasGradeOrd`) y `analyzeGradesWithMapping` los excluye si no la tienen.
+8.  **Gráficos en Notas por Grupo:** Nueva pestaña con Chart.js. Columnas apiladas con etiquetas de porcentaje incrustadas, pie charts con título dentro del canvas y leyenda única por conjunto, exportación PNG por conjunto, selector de evaluaciones y conjuntos múltiples configurables.
 
 ## Estado Actual
 

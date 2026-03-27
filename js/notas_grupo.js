@@ -1,7 +1,7 @@
 // Logic for Group Grades (Notas por Grupo)
 
-let globalStudents = {}; 
-let globalUnits = [];    
+let globalStudents = {};
+let globalUnits = [];
 let academicYear = '';
 let currentStats = {}; // Store stats for download
 
@@ -18,8 +18,8 @@ function switchTab(sectionId, btnElement) {
 }
 
 function processFile(file) {
-    globalStudents = {}; 
-    globalUnits = [];    
+    globalStudents = {};
+    globalUnits = [];
     academicYear = '';
     currentStats = {};
 
@@ -98,11 +98,10 @@ function parseData(csvText) {
         if (!globalStudents[nia]) {
             globalStudents[nia] = {
                 unidad: unidad,
-                failures1ev: 0,
-                failures2ev: 0,
-                failuresOrd: 0,
-                failuresExt: 0,
-                hasExt: false,
+                failures1ev: 0, hasGrade1ev: false,
+                failures2ev: 0, hasGrade2ev: false,
+                failuresOrd: 0, hasGradeOrd: false,
+                failuresExt: 0, hasExt: false,
                 subjects: new Set()
             };
         }
@@ -113,21 +112,33 @@ function parseData(csvText) {
         const processNota = (val) => {
             if (!val) return false;
             let cleanVal = val.replace(',', '.').toUpperCase();
-            cleanVal = cleanVal.replace(/-M/g, ''); 
+            cleanVal = cleanVal.replace(/-M/g, '');
             const n = parseFloat(cleanVal);
             return (!isNaN(n) && n < 5);
         };
 
-        if (processNota(row[indices.nota1])) globalStudents[nia].failures1ev++;
-        if (indices.nota2 !== -1 && processNota(row[indices.nota2])) globalStudents[nia].failures2ev++;
-        
+        const val1 = row[indices.nota1];
+        if (val1 && val1.trim() !== '') {
+            globalStudents[nia].hasGrade1ev = true;
+            if (processNota(val1)) globalStudents[nia].failures1ev++;
+        }
+
+        const val2 = indices.nota2 !== -1 ? row[indices.nota2] : '';
+        if (val2 && val2.trim() !== '') {
+            globalStudents[nia].hasGrade2ev = true;
+            if (processNota(val2)) globalStudents[nia].failures2ev++;
+        }
+
         let valFinal = '';
         if (indices.notaOrd !== -1) valFinal = row[indices.notaOrd];
         if ((!valFinal || valFinal.trim() === '') && indices.notaLomloe !== -1) {
             valFinal = row[indices.notaLomloe];
         }
-        if (processNota(valFinal)) globalStudents[nia].failuresOrd++;
-        
+        if (valFinal && valFinal.trim() !== '') {
+            globalStudents[nia].hasGradeOrd = true;
+            if (processNota(valFinal)) globalStudents[nia].failuresOrd++;
+        }
+
         if (indices.notaExt !== -1) {
             const valExt = row[indices.notaExt];
             if (valExt && valExt.trim() !== '') {
@@ -155,6 +166,11 @@ function renderGroupingUI() {
         div.addEventListener('dragover', handleDragOver);
         div.addEventListener('dragleave', handleDragLeave);
         div.addEventListener('drop', handleDrop);
+        div.addEventListener('click', (e) => {
+            if (e.target.type === 'checkbox') return;
+            const cb = div.querySelector('.unit-checkbox');
+            cb.checked = !cb.checked;
+        });
 
         div.innerHTML = `
             <input type="checkbox" class="unit-checkbox" value="${unit}">
@@ -260,9 +276,9 @@ function calculateAndShowResults() {
     });
 
     currentStats = {
-        '1ev': analyzeGradesWithMapping(mapping, 'failures1ev'),
-        '2ev': analyzeGradesWithMapping(mapping, 'failures2ev'),
-        'ord': analyzeGradesWithMapping(mapping, 'failuresOrd'),
+        '1ev': analyzeGradesWithMapping(mapping, 'failures1ev', 'hasGrade1ev'),
+        '2ev': analyzeGradesWithMapping(mapping, 'failures2ev', 'hasGrade2ev'),
+        'ord': analyzeGradesWithMapping(mapping, 'failuresOrd', 'hasGradeOrd'),
         'ext': analyzeGradesWithMapping(mapping, 'failuresExt', 'hasExt')
     };
     
@@ -286,6 +302,7 @@ function calculateAndShowResults() {
     
     document.getElementById('grouping-container').style.display = 'none';
     document.getElementById('results').style.display = 'block';
+    initChartSection();
 }
 
 function analyzeGradesWithMapping(unitMapping, failureKey, requiredKey = null) {
@@ -342,6 +359,390 @@ function downloadCSV(evalKey) {
     link.click();
     document.body.removeChild(link);
 }
+
+// ===== GRÁFICOS =====
+
+const CHART_COLORS = ['#16a34a', '#4ade80', '#86efac', '#f97316', '#ef4444'];
+const CHART_LABELS_CAT = ['0 suspensos', '1 suspenso', '2 suspensos', '3 suspensos', '4+ suspensos'];
+const CHART_KEYS_CAT = ['pass', 'f1', 'f2', 'f3', 'f4p'];
+const EVAL_DEFS = [
+    { key: '1ev',  label: '1ª Ev' },
+    { key: '2ev',  label: '2ª Ev' },
+    { key: 'ord',  label: 'Ordinaria' },
+    { key: 'ext',  label: 'Extraordinaria' }
+];
+
+let currentChartType = 'stacked';
+let chartInstances = [];
+
+function initChartSection() {
+    chartInstances.forEach(c => c.destroy());
+    chartInstances = [];
+    const output = document.getElementById('charts-output');
+    if (output) output.innerHTML = '';
+    const container = document.getElementById('chart-sets-container');
+    if (!container) return;
+    container.innerHTML = '';
+    initEvalSelector();
+    addChartSet();
+}
+
+function initEvalSelector() {
+    const container = document.getElementById('eval-selector-container');
+    if (!container) return;
+    container.innerHTML = '<span class="chart-control-label">Evaluaciones:</span>';
+    getAvailableEvals().forEach(ev => {
+        const label = document.createElement('label');
+        label.className = 'chart-group-label';
+        label.innerHTML = `<input type="checkbox" value="${ev.key}" checked> ${ev.label}`;
+        container.appendChild(label);
+    });
+}
+
+function getSelectedEvals() {
+    const checked = new Set(
+        Array.from(document.querySelectorAll('#eval-selector-container input:checked')).map(cb => cb.value)
+    );
+    return getAvailableEvals().filter(ev => checked.has(ev.key));
+}
+
+function setChartType(type, btn) {
+    currentChartType = type;
+    document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pie-cols-control').style.display = type === 'pie' ? 'flex' : 'none';
+}
+
+function getAvailableGroups() {
+    const groups = new Set();
+    EVAL_DEFS.forEach(({ key }) => {
+        if (currentStats[key]) currentStats[key].forEach(g => groups.add(g.name));
+    });
+    return Array.from(groups).sort();
+}
+
+function getAvailableEvals() {
+    return EVAL_DEFS.filter(({ key }) => currentStats[key] && currentStats[key].length > 0);
+}
+
+function addChartSet() {
+    const container = document.getElementById('chart-sets-container');
+    if (!container) return;
+
+    const groups = getAvailableGroups();
+    const setId = 'chart-set-' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'chart-set';
+    div.id = setId;
+
+    const header = document.createElement('div');
+    header.className = 'chart-set-header';
+    header.innerHTML = `<span class="chart-set-title">Conjunto de agrupaciones</span>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8em;" onclick="toggleAllGroups('${setId}', this)">Deseleccionar todo</button>
+            <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8em;" onclick="removeChartSet('${setId}')">✕ Eliminar</button>
+        </div>`;
+
+    const groupsDiv = document.createElement('div');
+    groupsDiv.className = 'chart-set-groups';
+    groups.forEach(group => {
+        const label = document.createElement('label');
+        label.className = 'chart-group-label';
+        label.innerHTML = `<input type="checkbox" value="${group}" checked> ${group}`;
+        groupsDiv.appendChild(label);
+    });
+
+    div.appendChild(header);
+    div.appendChild(groupsDiv);
+    container.appendChild(div);
+}
+
+function removeChartSet(setId) {
+    document.getElementById(setId)?.remove();
+}
+
+function toggleAllGroups(setId, btn) {
+    const checkboxes = Array.from(document.querySelectorAll(`#${setId} input[type=checkbox]`));
+    const allChecked = checkboxes.every(cb => cb.checked);
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+    btn.textContent = allChecked ? 'Seleccionar todo' : 'Deseleccionar todo';
+}
+
+function getGroupStats(group, evalKey) {
+    if (!currentStats[evalKey]) return null;
+    return currentStats[evalKey].find(g => g.name === group) || null;
+}
+
+function generateCharts() {
+    chartInstances.forEach(c => c.destroy());
+    chartInstances = [];
+
+    const output = document.getElementById('charts-output');
+    output.innerHTML = '';
+
+    const selectedEvals = getSelectedEvals();
+    if (selectedEvals.length === 0) {
+        output.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Selecciona al menos una evaluación.</p>';
+        return;
+    }
+
+    const sets = document.querySelectorAll('.chart-set');
+    let chartIndex = 0;
+
+    sets.forEach(set => {
+        const selectedGroups = Array.from(set.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
+        if (selectedGroups.length === 0) return;
+
+        chartIndex++;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'chart-wrapper';
+
+        const title = document.createElement('h3');
+        title.className = 'chart-section-title';
+        title.textContent = selectedGroups.join(' · ');
+        wrapper.appendChild(title);
+
+        if (currentChartType === 'stacked') {
+            const canvasWrap = document.createElement('div');
+            canvasWrap.className = 'canvas-container';
+            const canvas = document.createElement('canvas');
+            canvasWrap.appendChild(canvas);
+            wrapper.appendChild(canvasWrap);
+
+            const dlBtn = document.createElement('button');
+            dlBtn.className = 'download-btn';
+            dlBtn.style.marginTop = '12px';
+            dlBtn.innerHTML = '⬇️ Descargar imagen';
+            dlBtn.onclick = () => downloadChart(canvas, `grafico_barras_${chartIndex}`);
+            wrapper.appendChild(dlBtn);
+
+            output.appendChild(wrapper);
+            const chart = buildStackedChart(canvas, selectedGroups, selectedEvals);
+            if (chart) chartInstances.push(chart);
+
+        } else {
+            const pieCanvases = [];
+            const grid = document.createElement('div');
+            grid.className = 'pie-grid';
+            wrapper.appendChild(grid);
+
+            selectedGroups.forEach(group => {
+                selectedEvals.forEach(ev => {
+                    const gData = getGroupStats(group, ev.key);
+                    if (!gData || gData.total === 0) return;
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 280;
+                    canvas.height = 300;
+                    grid.appendChild(canvas);
+                    pieCanvases.push(canvas);
+
+                    const chart = buildPieChart(canvas, group, ev);
+                    if (chart) chartInstances.push(chart);
+                });
+            });
+
+            wrapper.appendChild(buildPieLegend());
+
+            const dlBtn = document.createElement('button');
+            dlBtn.className = 'download-btn';
+            dlBtn.style.marginTop = '12px';
+            dlBtn.innerHTML = '⬇️ Descargar conjunto';
+            dlBtn.onclick = () => downloadPieSet(pieCanvases, `grafico_pie_${chartIndex}`);
+            wrapper.appendChild(dlBtn);
+
+            output.appendChild(wrapper);
+        }
+    });
+
+    if (output.innerHTML === '') {
+        output.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Selecciona al menos una agrupación en cada conjunto.</p>';
+    }
+}
+
+function buildStackedChart(canvas, groups, availableEvals) {
+    const labels = [];
+    const datasets = CHART_KEYS_CAT.map((key, i) => ({
+        label: CHART_LABELS_CAT[i],
+        data: [],
+        backgroundColor: CHART_COLORS[i],
+        borderColor: 'rgba(255,255,255,0.6)',
+        borderWidth: 1,
+    }));
+
+    groups.forEach((group, gi) => {
+        if (gi > 0) {
+            labels.push('');
+            datasets.forEach(ds => ds.data.push(null));
+        }
+        availableEvals.forEach(ev => {
+            labels.push([group, ev.label]);
+            const gData = getGroupStats(group, ev.key);
+            datasets.forEach((ds, i) => {
+                ds.data.push(gData && gData.total > 0
+                    ? (gData[CHART_KEYS_CAT[i]] / gData.total) * 100
+                    : 0);
+            });
+        });
+    });
+
+    return new Chart(canvas, {
+        type: 'bar',
+        plugins: [ChartDataLabels],
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.raw !== null ? `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%` : null
+                    }
+                },
+                datalabels: {
+                    color: 'white',
+                    font: { weight: 'bold', size: 11 },
+                    anchor: 'center',
+                    align: 'center',
+                    formatter: (value) => {
+                        if (value === null || value < 5) return '';
+                        return value.toFixed(1) + '%';
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    grid: { display: false },
+                    ticks: { font: { size: 11 } }
+                },
+                y: {
+                    stacked: true,
+                    min: 0,
+                    max: 100,
+                    ticks: { callback: v => v + '%', font: { size: 11 } },
+                    grid: { color: 'rgba(0,0,0,0.06)' }
+                }
+            }
+        }
+    });
+}
+
+function buildPieChart(canvas, group, ev) {
+    const gData = getGroupStats(group, ev.key);
+    if (!gData || gData.total === 0) return null;
+
+    return new Chart(canvas, {
+        type: 'pie',
+        data: {
+            labels: CHART_LABELS_CAT,
+            datasets: [{
+                data: CHART_KEYS_CAT.map(key => (gData[key] / gData.total) * 100),
+                backgroundColor: CHART_COLORS,
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: [group, ev.label],
+                    color: '#333',
+                    font: { size: 12, weight: 'bold' },
+                    padding: { top: 8, bottom: 4 }
+                },
+                legend: { display: false },
+                tooltip: {
+                    callbacks: { label: ctx => `${ctx.label}: ${ctx.raw.toFixed(1)}%` }
+                }
+            }
+        }
+    });
+}
+
+function buildPieLegend() {
+    const div = document.createElement('div');
+    div.className = 'pie-legend';
+    CHART_LABELS_CAT.forEach((label, i) => {
+        const item = document.createElement('span');
+        item.className = 'pie-legend-item';
+        item.innerHTML = `<span class="pie-legend-dot" style="background:${CHART_COLORS[i]}"></span>${label}`;
+        div.appendChild(item);
+    });
+    return div;
+}
+
+function downloadPieSet(canvases, filename) {
+    if (canvases.length === 0) return;
+
+    const cw = canvases[0].width;
+    const ch = canvases[0].height;
+    const colsInput = parseInt(document.getElementById('pie-cols-input')?.value) || 4;
+    const cols = Math.min(canvases.length, Math.max(1, colsInput));
+    const rows = Math.ceil(canvases.length / cols);
+    const gap = 16;
+    const margin = 20;
+    const legendH = 40;
+
+    const totalW = cols * cw + (cols - 1) * gap + 2 * margin;
+    const totalH = rows * ch + (rows - 1) * gap + 2 * margin + gap + legendH;
+
+    const offscreen = document.createElement('canvas');
+    offscreen.width = totalW;
+    offscreen.height = totalH;
+    const ctx = offscreen.getContext('2d');
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, totalW, totalH);
+
+    canvases.forEach((canvas, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        ctx.drawImage(canvas, margin + col * (cw + gap), margin + row * (ch + gap));
+    });
+
+    // Draw legend centred at the bottom
+    ctx.font = 'bold 12px Segoe UI, Arial, sans-serif';
+    const boxSize = 13;
+    const itemPad = 20;
+    const itemWidths = CHART_LABELS_CAT.map(l => boxSize + 6 + ctx.measureText(l).width);
+    const totalLegendW = itemWidths.reduce((a, b) => a + b, 0) + itemPad * (CHART_LABELS_CAT.length - 1);
+    let lx = (totalW - totalLegendW) / 2;
+    const ly = totalH - margin - legendH / 2;
+
+    CHART_LABELS_CAT.forEach((label, i) => {
+        ctx.fillStyle = CHART_COLORS[i];
+        ctx.fillRect(lx, ly - boxSize / 2, boxSize, boxSize);
+        ctx.fillStyle = '#333';
+        ctx.fillText(label, lx + boxSize + 6, ly + 5);
+        lx += itemWidths[i] + itemPad;
+    });
+
+    const link = document.createElement('a');
+    link.download = filename + '.png';
+    link.href = offscreen.toDataURL('image/png');
+    link.click();
+}
+
+function downloadChart(canvas, filename) {
+    const offscreen = document.createElement('canvas');
+    offscreen.width = canvas.width;
+    offscreen.height = canvas.height;
+    const ctx = offscreen.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, offscreen.width, offscreen.height);
+    ctx.drawImage(canvas, 0, 0);
+
+    const link = document.createElement('a');
+    link.download = filename + '.png';
+    link.href = offscreen.toDataURL('image/png');
+    link.click();
+}
+
+// ===== FIN GRÁFICOS =====
 
 function renderTable(tableId, stats) {
     const tbody = document.querySelector(`#${tableId} tbody`);

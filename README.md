@@ -23,8 +23,14 @@ Visión general del rendimiento académico por grupos de alumnos.
 - **Estadísticas Detalladas:** Muestra el número de alumnos y el **porcentaje** correspondiente para:
     - Todo aprobado.
     - 1, 2, 3, o 4+ suspensos.
-- **Gestión de Grupos:** Permite agrupar unidades (ej. 1ºA, 1ºB -> 1º ESO) mediante una interfaz visual de arrastrar y soltar.
-- **Evaluaciones:** Soporte para evaluaciones trimestrales, final ordinaria y extraordinaria.
+- **Gestión de Grupos:** Permite agrupar unidades (ej. 1ºA, 1ºB -> 1º ESO) mediante una interfaz visual de arrastrar y soltar. Clic en cualquier parte de la fila para seleccionar.
+- **Evaluaciones:** Soporte para evaluaciones trimestrales, final ordinaria y extraordinaria. Solo se muestran las evaluaciones con notas reales introducidas.
+- **Gráficos Exportables:** Nueva pestaña con visualización gráfica de los resultados:
+    - **Columnas apiladas:** compara agrupaciones y evaluaciones en una sola imagen. Cada segmento muestra el porcentaje directamente sobre la barra.
+    - **Circular (Pie):** una tarta por cada combinación de agrupación y evaluación, con leyenda única por conjunto.
+    - **Conjuntos múltiples:** define varios conjuntos de agrupaciones para generar varios gráficos independientes a la vez.
+    - **Selector de evaluaciones:** elige qué evaluaciones incluir en los gráficos.
+    - **Descarga como imagen PNG:** gráfico de barras descargable individualmente; tartas descargables como una única imagen por conjunto, con número de columnas configurable.
 
 ### 3. 📚 Notas por Materia
 Análisis detallado de los resultados por asignatura.
@@ -65,6 +71,7 @@ Esta aplicación es una **Single Page Application (SPA)** estática que se ejecu
 
 - **HTML5 / CSS3:** Diseño moderno, responsive y limpio.
 - **JavaScript (Vanilla):** Lógica de procesamiento de datos optimizada y sin dependencias externas pesadas.
+- **Chart.js 4 + chartjs-plugin-datalabels:** Visualización gráfica en Notas por Grupo (cargados vía CDN).
 - **CSS Grid/Flexbox:** Para la maquetación de la interfaz unificada.
 
 ## 📂 Estructura del Proyecto
