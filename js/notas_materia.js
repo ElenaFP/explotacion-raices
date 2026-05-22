@@ -609,12 +609,14 @@ function downloadCSV() {
     const isBach = currentIsBach;
     const has3evData = currentStats.some(s => s.eval3Count > 0);
 
-    let csv = 'MATERIA,1EV,2EV';
-    if (has3evData) csv += ',3EV';
+    const SEP = ';';
+
+    let csv = `MATERIA${SEP}1ª Evaluación${SEP}2ª Evaluación`;
+    if (has3evData) csv += `${SEP}3ª Evaluación`;
     if (isBach) {
-        csv += ',ORD,EXT\n';
+        csv += `${SEP}Ordinaria${SEP}Extraordinaria\n`;
     } else {
-        csv += ',FINAL\n';
+        csv += `${SEP}Final\n`;
     }
 
     const formatNum = (passed, total) => {
@@ -623,22 +625,22 @@ function downloadCSV() {
     };
 
     currentStats.forEach(s => {
-        csv += `"${s.subject}",`;
-        csv += `${formatNum(s.passed1Ev, s.eval1Count)},`;
+        csv += `"${s.subject}"${SEP}`;
+        csv += `${formatNum(s.passed1Ev, s.eval1Count)}${SEP}`;
         csv += `${formatNum(s.passed2Ev, s.eval2Count)}`;
 
-        if (has3evData) csv += `,${formatNum(s.passed3Ev, s.eval3Count)}`;
+        if (has3evData) csv += `${SEP}${formatNum(s.passed3Ev, s.eval3Count)}`;
 
         if (isBach) {
-            csv += `,${formatNum(s.passedOrd, s.evalOrdCount)},`;
+            csv += `${SEP}${formatNum(s.passedOrd, s.evalOrdCount)}${SEP}`;
             csv += `${formatNum(s.passedExt, s.evalExtCount)}`;
         } else {
-            csv += `,${formatNum(s.passedFinal, s.evalFinalCount)}`;
+            csv += `${SEP}${formatNum(s.passedFinal, s.evalFinalCount)}`;
         }
         csv += '\n';
     });
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
 
