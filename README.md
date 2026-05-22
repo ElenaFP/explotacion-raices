@@ -52,6 +52,7 @@ Análisis detallado de los resultados por asignatura.
     - **Inglés Global:** Combina todas las materias de inglés.
     - **Matemáticas (Total):** Genera automáticamente una fila de resumen si detecta múltiples asignaturas de matemáticas en 4º ESO o Bachillerato.
 - **Resaltado Visual:** Identificación rápida de materias troncales (Lengua, Matemáticas, Geografía) y filas de totales.
+- **Descarga CSV:** Exporta los resultados en formato CSV con punto y coma como separador, compatible con Excel en español (apertura directa sin pasos de importación).
 
 ## 🔒 Privacidad y Seguridad
 
