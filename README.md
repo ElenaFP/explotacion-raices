@@ -23,6 +23,7 @@ Analiza el absentismo escolar por evaluaciones.
     - **Dos modos de agrupación:** *Por Evaluación* (eje X = evaluaciones, barras = niveles) o *Por Nivel* (eje X = niveles, barras = evaluaciones).
     - **Conjuntos múltiples:** define varios conjuntos de niveles para generar varios gráficos a la vez.
     - **Descarga PNG** por gráfico con fondo blanco.
+    - **Texto optimizado para presentaciones:** fuentes ampliadas en títulos, etiquetas de ejes, leyenda y valores sobre las barras, pensado para proyección en pantalla o PowerPoint.
 
 ### 2. 👥 Resultados por Grupo
 Visión general del rendimiento académico por grupos de alumnos.

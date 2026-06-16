@@ -511,11 +511,11 @@ function buildGroupedChart(canvas, selectedNiveles, allNiveles, selectedEvals) {
                 title: {
                     display: true,
                     text: metricLabel,
-                    font: { size: 14, weight: 'bold' },
+                    font: { size: 22, weight: 'bold' },
                     color: '#333',
-                    padding: { bottom: 12 }
+                    padding: { bottom: 16 }
                 },
-                legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } },
+                legend: { position: 'bottom', labels: { padding: 20, font: { size: 16 } } },
                 tooltip: {
                     callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw.toFixed(2)}` }
                 },
@@ -523,17 +523,17 @@ function buildGroupedChart(canvas, selectedNiveles, allNiveles, selectedEvals) {
                     anchor: 'end',
                     align: 'end',
                     color: '#475569',
-                    font: { size: 10, weight: 'bold' },
+                    font: { size: 15, weight: 'bold' },
                     formatter: value => value > 0 ? value.toFixed(1) : ''
                 }
             },
             scales: {
-                x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+                x: { grid: { display: false }, ticks: { font: { size: 16 } } },
                 y: {
                     beginAtZero: true,
                     grid: { color: 'rgba(0,0,0,0.06)' },
-                    ticks: { font: { size: 11 } },
-                    title: { display: true, text: metricLabel, font: { size: 11 }, color: '#64748b' }
+                    ticks: { font: { size: 15 } },
+                    title: { display: true, text: metricLabel, font: { size: 15 }, color: '#64748b' }
                 }
             }
         }
