@@ -594,7 +594,7 @@ function buildStackedChart(canvas, groups, availableEvals) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } },
+                legend: { position: 'bottom', labels: { padding: 16, font: { size: 16 } } },
                 tooltip: {
                     callbacks: {
                         label: ctx => ctx.raw !== null ? `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%` : null
@@ -602,7 +602,7 @@ function buildStackedChart(canvas, groups, availableEvals) {
                 },
                 datalabels: {
                     color: 'white',
-                    font: { weight: 'bold', size: 11 },
+                    font: { weight: 'bold', size: 15 },
                     anchor: 'center',
                     align: 'center',
                     formatter: (value) => {
@@ -615,13 +615,13 @@ function buildStackedChart(canvas, groups, availableEvals) {
                 x: {
                     stacked: true,
                     grid: { display: false },
-                    ticks: { font: { size: 11 } }
+                    ticks: { font: { size: 16 } }
                 },
                 y: {
                     stacked: true,
                     min: 0,
                     max: 100,
-                    ticks: { callback: v => v + '%', font: { size: 11 } },
+                    ticks: { callback: v => v + '%', font: { size: 15 } },
                     grid: { color: 'rgba(0,0,0,0.06)' }
                 }
             }
@@ -635,6 +635,7 @@ function buildPieChart(canvas, group, ev) {
 
     return new Chart(canvas, {
         type: 'pie',
+        plugins: [ChartDataLabels],
         data: {
             labels: CHART_LABELS_CAT,
             datasets: [{
@@ -657,6 +658,14 @@ function buildPieChart(canvas, group, ev) {
                 legend: { display: false },
                 tooltip: {
                     callbacks: { label: ctx => `${ctx.label}: ${ctx.raw.toFixed(1)}%` }
+                },
+                datalabels: {
+                    color: 'white',
+                    font: { weight: 'bold', size: 13 },
+                    formatter: (value) => {
+                        if (value < 5) return '';
+                        return value.toFixed(1) + '%';
+                    }
                 }
             }
         }

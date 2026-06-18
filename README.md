@@ -34,7 +34,7 @@ Visión general del rendimiento académico por grupos de alumnos.
 - **Evaluaciones:** Soporte para evaluaciones trimestrales, final ordinaria y extraordinaria. Solo se muestran las evaluaciones con notas reales introducidas.
 - **Gráficos Exportables:** Nueva pestaña con visualización gráfica de los resultados:
     - **Columnas apiladas:** compara agrupaciones y evaluaciones en una sola imagen. Cada segmento muestra el porcentaje directamente sobre la barra.
-    - **Circular (Pie):** una tarta por cada combinación de agrupación y evaluación, con leyenda única por conjunto.
+    - **Circular (Pie):** una tarta por cada combinación de agrupación y evaluación, con porcentaje sobre cada sector y leyenda única por conjunto.
     - **Conjuntos múltiples:** define varios conjuntos de agrupaciones para generar varios gráficos independientes a la vez.
     - **Selector de evaluaciones:** elige qué evaluaciones incluir en los gráficos.
     - **Descarga como imagen PNG:** gráfico de barras descargable individualmente; tartas descargables como una única imagen por conjunto, con número de columnas configurable.
